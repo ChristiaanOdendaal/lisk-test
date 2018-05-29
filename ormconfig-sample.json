@@ -1,0 +1,25 @@
+{
+   "type": "mysql",
+   "host": "192.168.116.10",
+   "port": 3306,
+   "username": "chainex",
+   "password": "CX_123XX0",
+   "database": "chainex",
+   "synchronize": false,
+   "logging": false,
+   "entities": [
+      "src/entity/**/*.ts",
+      "src/entity/**/*.js"
+   ],
+   "migrations": [
+      "src/migration/**/*.ts"
+   ],
+   "subscribers": [
+      "src/subscriber/**/*.ts"
+   ],
+   "cli": {
+      "entitiesDir": "src/entity",
+      "migrationsDir": "src/migration",
+      "subscribersDir": "src/subscriber"
+   }
+}
