@@ -94,7 +94,7 @@ createConnection().then(async connection => {
     }
 
     //try to connect to Ripple before doing any processing
-    await xrp.connect().then(async () => {
+    xrp.connect().then(async () => {
 
         switch (process.argv[2]) {
             case 'deposit':
@@ -103,6 +103,7 @@ createConnection().then(async connection => {
 
             case 'withdraw':
                 await processWithdrawals(xrp, connection, coin);
+                cleanup();
                 break;
 
             case 'balance':
@@ -117,10 +118,10 @@ createConnection().then(async connection => {
     }).then(() => {
         return xrp.disconnect();
     }).catch(error => {
-        logLine(error, 'error');
+        logLine(error);
         process.exit(1);
     });
 }).catch(error => {
-    logLine(error, 'error');
+    logLine(error);
     process.exit(1);
 });

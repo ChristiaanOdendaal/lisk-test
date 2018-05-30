@@ -3,6 +3,7 @@ import { config } from '../../configuration';
 import { Users } from '../entity/users';
 import { Mail_Queue } from '../entity/mail_queue';
 import * as WAValidator from 'wallet-address-validator';
+import * as zmq from 'zmq';
 
 export let logLine = (...args): void => {
     var now = new Date().toISOString();
@@ -18,11 +19,11 @@ export let isAddress = (address: string): boolean => {
 };
 
 export let sendPushMessage = (message): void => {
-    var zmq = require('zmq')
-        , sock = zmq.socket('push');
-
+    const sock = zmq.socket('push');
     sock.connect(config.pushServer);
     sock.send(JSON.stringify(message));
+    setTimeout(sock ? sock.close : false, 150);
+
 }
 
 const readFile = filePath => new Promise((resolve, reject) => {
