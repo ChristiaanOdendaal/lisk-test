@@ -47,11 +47,9 @@ export async function processWithdrawals(xrp, connection, coin) {
             return;
         }
 
-        const receipt = web3.eth.getTransactionReceipt(tx.txid);
-        if (receipt) {
+        if (xrpTx.outcome.result == 'tesSUCCESS') {
             tx.pending = 0;
-            // This is the actual coin fee, not the transaction fee...
-            // tx.fee = (receipt.gasUsed * ethTx.gasPrice) / 10 ** 18;
+            tx.fee = Number(xrpTx.outcome.fee).toFixed(8);
             await connection.manager.save(tx);
 
             // Get the users existing balance
@@ -182,62 +180,60 @@ export async function processWithdrawals(xrp, connection, coin) {
             return;
         }
         const transaction = _transactions.shift();
+
         let fee = 0;
         await xrp.getServerInfo().then(function (server) {
-            fee = parseFloat(server.validatedLedger.baseFeeXRP)*1000*1000;
+            fee = parseFloat(server.validatedLedger.baseFeeXRP) * 1000 * 1000;
         });
 
+        logLine("fee: " + fee);
         if (fee > parseFloat(coin.withdraw_fee)) {
             logLine('Withdraw fee is too high!!!');
             throw Error('Fee is too high');
         }
-        
+
         logLine(`trying to send from ${config.fromAddress} to ${transaction.address} amount ${transaction.amount}`);
 
-        await xrp.getAccountInfo(config.fromAddress).then(function(accInfo){
-            console.log('<< [getAccountInfo] done, info: ', accInfo)
-        
-            var xrptransaction = {
-                "TransactionType" : "Payment",
-                "Account" : config.fromAddress,
-                "Fee" : fee,
-                "Destination" : transaction.address,
-                "DestinationTag" : transaction.payment_id,
-                "Amount" : (transaction.amount)+"",
-                "Sequence" : accInfo.sequence
-             }
-        
-            console.log('===> Transaction: ', xrptransaction)
-            process.exit(0);
-            var txJSON = JSON.stringify(transaction)
-            var secret = Object.keys(wallets)[Object.values(wallets).indexOf(payFrom)]
-        
-            if(typeof secret === 'undefined') {
-              console.log('-- ERROR RETRIEVING SECRET')
-              process.exit(1)
-            }
-        
-            signed_tx = api.sign(txJSON, secret)
-            tx_at_ledger = closedLedger
-        
-            console.log('===> Signed TX << ID >>: ', signed_tx.id)
-        
-            console.log('-------- SUBMITTING TRANSACTION --------')
-            api.submit(signed_tx.signedTransaction).then(function(tx_data){
-              console.log(tx_data)
-        
-              console.log('   >> [Tentative] Result: ', tx_data.resultCode)
-              console.log('   >> [Tentative] Message: ', tx_data.resultMessage)
-            }).catch(function(e){
-              console.log('-- ERROR SUBMITTING TRANSACTION: ', e)
-              process.exit(1)
-            })
-        });
+        const accInfo = await xrp.getAccountInfo(config.fromAddress);
+        logLine(accInfo);
 
-        result = await web3.eth.sendTransaction(params);
-        logLine('updating txids to', result);
+        let xrptransaction = {
+            "TransactionType": "Payment",
+            "Account": config.fromAddress,
+            "Fee": fee + "",
+            "Destination": transaction.address,
+            //"DestinationTag" : transaction.payment_id,
+            "Amount": transaction.amount + "",
+            "Sequence": accInfo.sequence
+        }
+
+        logLine(xrptransaction);
+
+        let txJSON = JSON.stringify(xrptransaction);
+
+        logLine(txJSON);
+
+        if (typeof config.fromSecret === 'undefined') {
+            logLine("ERROR: No secret");
+            process.exit(1);
+        }
+
+        let signedTx = await xrp.sign(txJSON, config.fromSecret);
+        logLine(signedTx);
+        logLine('-------- SUBMITTING TRANSACTION --------');
+
+        const result = await xrp.submit(signedTx.signedTransaction)
+            .catch(function (e) {
+                logLine('ERROR: SUBMITTING TRANSACTION: ', e)
+                process.exit(1);
+            });
+
+        logLine(result);
+
+        logLine('updating txids to', signedTx.id);
+
         const found = processingTransactions.filter(element => element.address === transaction.address);
-        found.forEach(element => element.txid = result);
+        found.forEach(element => element.txid = signedTx.id);
 
         await dotransactions(_transactions);
     }
@@ -301,6 +297,7 @@ export async function processWithdrawals(xrp, connection, coin) {
 
     if (!withdrawals || !withdrawals.length) {
         logLine('No pending withdraws. Nothing to do.');
+        return;
     }
 
     // send to processWithdrawal regardless so that it can run cleanup
