@@ -87,3 +87,14 @@ export let sendEmail = async (connection, user_id: number, type: string, amount:
 
     return true;
 }
+
+export let random = function (n) {
+    var add = 1, max = 12 - add;
+    if (n > max) {
+        return random(max) + random(n - max);
+    }
+    max = Math.pow(10, n + add);
+    var min = max / 10;
+    var number = Math.floor(Math.random() * (max - min + 1)) + min;
+    return ("" + number).substring(add);
+}

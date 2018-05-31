@@ -1,4 +1,5 @@
 import "reflect-metadata";
+import { createAddresses } from './action/address'
 import { processDeposits } from './action/deposit';
 import { processWithdrawals } from './action/withdraw';
 import { balanceCheck } from './action/balance';
@@ -61,6 +62,7 @@ createConnection().then(async connection => {
         switch (process.argv[2]) {
             case 'deposit': type = 1; break;
             case 'withdraw': type = 2; break;
+            case 'address': type = 4; break;
             case 'balance': type = 8; break;
             default: type = 0;
         }
@@ -97,6 +99,9 @@ createConnection().then(async connection => {
     xrp.connect().then(async () => {
 
         switch (process.argv[2]) {
+            case 'address':
+                await createAddresses(connection, coin, cleanup);
+            break;
             case 'deposit':
                 await processDeposits(xrp, connection, coin, monitoringRepository, cleanup)
                 break;
