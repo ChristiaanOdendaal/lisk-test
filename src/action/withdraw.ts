@@ -46,10 +46,10 @@ export async function processWithdrawals(xrp, connection, coin) {
             coin.cron_withdraw = -1;
             return;
         }
-
         if (xrpTx.outcome.result == 'tesSUCCESS') {
+            logLine('Confirming ' + tx.txid);
             tx.pending = 0;
-            tx.fee = Number(xrpTx.outcome.fee).toFixed(8);
+            //tx.fee = Number(xrpTx.outcome.fee).toFixed(8);
             await connection.manager.save(tx);
 
             // Get the users existing balance
@@ -166,8 +166,8 @@ export async function processWithdrawals(xrp, connection, coin) {
         }
 
 
-        logLine('withdrawalArray after duplicate check');
-        logLine(withdrawalArray);
+        //logLine('withdrawalArray after duplicate check');
+        //logLine(withdrawalArray);
 
         withdrawal.coin = coin;
         processingTransactions.push(withdrawal);
@@ -180,13 +180,13 @@ export async function processWithdrawals(xrp, connection, coin) {
             return;
         }
         const transaction = _transactions.shift();
-
+        
         let fee = 0;
         await xrp.getServerInfo().then(function (server) {
-            fee = parseFloat(server.validatedLedger.baseFeeXRP) * 1000 * 1000;
+            fee = parseFloat(server.validatedLedger.baseFeeXRP);
         });
 
-        logLine("fee: " + fee);
+        //logLine("fee: " + fee);
         if (fee > parseFloat(coin.withdraw_fee)) {
             logLine('Withdraw fee is too high!!!');
             throw Error('Fee is too high');
@@ -195,23 +195,27 @@ export async function processWithdrawals(xrp, connection, coin) {
         logLine(`trying to send from ${config.fromAddress} to ${transaction.address} amount ${transaction.amount}`);
 
         const accInfo = await xrp.getAccountInfo(config.fromAddress);
-        logLine(accInfo);
+        //logLine(accInfo);
 
+        //logLine(transaction);
+        //process.exit(0);
+        let txfee = fee * 1000 * 1000;
+        let txamount = parseFloat(transaction.amount) * 1000 * 1000;
         let xrptransaction = {
             "TransactionType": "Payment",
             "Account": config.fromAddress,
-            "Fee": fee + "",
+            "Fee": txfee + "",
             "Destination": transaction.address,
             //"DestinationTag" : transaction.payment_id,
-            "Amount": transaction.amount + "",
+            "Amount": txamount + "",
             "Sequence": accInfo.sequence
         }
 
-        logLine(xrptransaction);
+        //logLine(xrptransaction);
 
         let txJSON = JSON.stringify(xrptransaction);
 
-        logLine(txJSON);
+        //logLine(txJSON);
 
         if (typeof config.fromSecret === 'undefined') {
             logLine("ERROR: No secret");
@@ -219,8 +223,8 @@ export async function processWithdrawals(xrp, connection, coin) {
         }
 
         let signedTx = await xrp.sign(txJSON, config.fromSecret);
-        logLine(signedTx);
-        logLine('-------- SUBMITTING TRANSACTION --------');
+        //logLine(signedTx);
+        //logLine('-------- SUBMITTING TRANSACTION --------');
 
         const result = await xrp.submit(signedTx.signedTransaction)
             .catch(function (e) {
@@ -228,7 +232,7 @@ export async function processWithdrawals(xrp, connection, coin) {
                 process.exit(1);
             });
 
-        logLine(result);
+        //logLine(result);
 
         logLine('updating txids to', signedTx.id);
 
@@ -266,7 +270,7 @@ export async function processWithdrawals(xrp, connection, coin) {
 
         await sendEmail(connection, tx.user_id, "withdraw", tx.amount, tx.address, coin.code);
 
-        sendPushMessage({
+        await sendPushMessage({
             'feed': crypto.createHash('md5').update(tx.user_id + '@ChainEX').digest("hex"),
             'title': 'Withdraw Processed',
             'tag': crypto.createHash('md5').update(tx.txid + 'withdraw').digest("hex"),

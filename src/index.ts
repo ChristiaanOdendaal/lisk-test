@@ -5,7 +5,7 @@ import { processWithdrawals } from './action/withdraw';
 import { balanceCheck } from './action/balance';
 import { Coins } from "./entity/coins";
 import { Monitoring } from "./entity/monitoring";
-import { logLine } from './util/util';
+import { logLine, sendPushMessage } from './util/util';
 import { config } from '../configuration';
 import * as Xrp from 'ripple-lib';
 import { createConnection, ConnectionOptions } from "typeorm";

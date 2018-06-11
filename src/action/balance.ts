@@ -44,11 +44,10 @@ export async function balanceCheck(xrp, connection, coin, eth) {
     // echo "[" . date('M j y H:i:s', time()) . " ".$walletServer.":".$coinName."] Actual Balance: " . $expectedStorage . "\n";
     logLine('Expected Total:', balance);
 
-    logLine(config.fromAddress);
-
     walletTotal = await xrp.getBalances(config.fromAddress);
     walletTotal = walletTotal[0].value;
-    
+    logLine(`Initial Balance: ${walletTotal}`);
+
     if (walletTotal - pendingDeposit >= coin.balance_check) {
         /// Funds possibly not cleared yet, and should not yet be profit...
         walletTotal -= pendingDeposit;

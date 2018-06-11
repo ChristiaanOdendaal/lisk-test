@@ -18,11 +18,12 @@ export let isAddress = (address: string): boolean => {
     return WAValidator.validate(address, config.coincode);
 };
 
-export let sendPushMessage = (message): void => {
+export let sendPushMessage = async function (message) {
     const sock = zmq.socket('push');
     sock.connect(config.pushServer);
-    sock.send(JSON.stringify(message));
-    setTimeout(sock ? sock.close : false, 150);
+    await sock.send(JSON.stringify(message));
+    await sock.disconnect();
+    //setTimeout(sock ? sock.disconnect : () => false, 150);
 
 }
 
