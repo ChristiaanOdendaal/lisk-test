@@ -80,68 +80,75 @@ export async function processDeposits(xrp, connection, coin, monitoringRepositor
         let address = await addressRepository.findOne({ address_address: transaction.specification.destination.tag }); // Use user address table...
         let deliveredAmount = Number(transaction.outcome.deliveredAmount.value);
 
-        if (address) {
-            // Output some information
-            logLine('New transaction! TO Address', address.address, "Amount", deliveredAmount.toFixed(8));
+        if (transaction.specification.destination.tag !== undefined) {
+            if (address) {
+                // Output some information
+                logLine('New transaction! TO Address', address.address, "Amount", deliveredAmount.toFixed(8));
 
-            // Get the users existing pending balance based on the deposit address
-            let balance = await balancesRepository.findOne({ id: address.address_balance_id });
+                // Get the users existing pending balance based on the deposit address
+                let balance = await balancesRepository.findOne({ id: address.address_balance_id });
 
-            if (balance) {
-                // Log the users existing balance
-                logLine('Found users (ID:', balance.user_id + ') existing pending balance:', balance.balance_pending_deposit);
+                if (balance) {
+                    // Log the users existing balance
+                    logLine('Found users (ID:', balance.user_id + ') existing pending balance:', balance.balance_pending_deposit);
 
-                const xrpTx = await xrp.getTransaction(transaction.id);
-                if (xrpTx) {
+                    const xrpTx = await xrp.getTransaction(transaction.id);
+                    if (xrpTx) {
 
-                    const txn = new Transactions();
+                        const txn = new Transactions();
 
-                    txn.coin_id = coin.id;
-                    txn.txid = xrpTx.id;
-                    txn.type = 0;
-                    txn.user_id = balance.user_id;
-                    txn.address = xrpTx.specification.destination.tag;
-                    txn.amount = +Number(xrpTx.outcome.deliveredAmount.value).toFixed(8);
+                        txn.coin_id = coin.id;
+                        txn.txid = xrpTx.id;
+                        txn.type = 0;
+                        txn.user_id = balance.user_id;
+                        txn.address = xrpTx.specification.destination.tag;
+                        txn.amount = +Number(xrpTx.outcome.deliveredAmount.value).toFixed(8);
 
-                    txn.pending = 1;
-                    txn.confirms = 0;
-                    txn.time = new Date().getTime().toString().substr(0, 10);
-                    txn.fee = +Number(xrpTx.outcome.fee).toFixed(8);
-                    await connection.manager.save(txn);
+                        txn.pending = 1;
+                        txn.confirms = 0;
+                        txn.time = new Date().getTime().toString().substr(0, 10);
+                        txn.fee = +Number(xrpTx.outcome.fee).toFixed(8);
+                        await connection.manager.save(txn);
 
-                    // TOTAL Available Balance
-                    const totalBalance = +(balance.balance_available + txn.amount).toFixed(8);
-                    balance.balance_available = totalBalance;
+                        // TOTAL Available Balance
+                        const totalBalance = +(balance.balance_available + txn.amount).toFixed(8);
+                        balance.balance_available = totalBalance;
 
-                    await connection.manager.save(balance);
+                        await connection.manager.save(balance);
 
-                    // Log it
-                    logLine('Transaction applied to users balance. NEW Pending Balance:', totalBalance);
+                        // Log it
+                        logLine('Transaction applied to users balance. NEW Pending Balance:', totalBalance);
 
-                    await sendEmail(connection, balance.user_id, "deposit", txn.amount, txn.address, coin.code);
+                        await sendEmail(connection, balance.user_id, "deposit", txn.amount, txn.address, coin.code);
 
-                    sendPushMessage({
-                        'feed': crypto.createHash('md5').update(balance.user_id + '@ChainEX').digest("hex"),
-                        'title': 'New Deposit Received',
-                        'tag': crypto.createHash('md5').update(txn.txid + 'deposit').digest("hex"),
-                        'message': 'A new ' + txn.amount + ' ' + coin.code + ' deposit has been detected. New available balance: ' + totalBalance,
-                    });
+                        sendPushMessage({
+                            'feed': crypto.createHash('md5').update(balance.user_id + '@ChainEX').digest("hex"),
+                            'title': 'New Deposit Received',
+                            'tag': crypto.createHash('md5').update(txn.txid + 'deposit').digest("hex"),
+                            'message': 'A new ' + txn.amount + ' ' + coin.code + ' deposit has been detected. New available balance: ' + totalBalance,
+                        });
 
-                    callback();
-                };
+                        callback();
+                    };
+                }
+            } else {
+                // Skipping transaction
+                logLine('SKIPPING Transaction. Unknown Destination Tag: ', transaction.specification.destination.tag, transaction.id);
+                callback();
             }
         } else {
             // Skipping transaction
-            logLine('SKIPPING Transaction. Unknown Destination Tag: ',transaction.specification.destination.tag, transaction.id);
+            //logLine('SKIPPING Transaction. NO destination tag: ', transaction.id);
             callback();
         }
     }
 
     const serverInfo = await xrp.getServerInfo();
     const ledgers = serverInfo.completeLedgers.split('-');
-    const minLedgerVersion = Number(ledgers[0]);
+    //const minLedgerVersion = Number(ledgers[0]);
+    const minLedgerVersion = Number(coin.lastblock);
     const maxLedgerVersion = Number(ledgers[1]);
-
+    
     const transactions = await xrp.getTransactions(config.fromAddress, {
         minLedgerVersion,
         maxLedgerVersion,
