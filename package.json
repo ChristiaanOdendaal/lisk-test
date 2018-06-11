@@ -16,8 +16,7 @@
   "devDependencies": {
     "@types/node": "^9.3.0",
     "ts-node": "^4.1.0",
-    "typescript": "^2.5.2",
-    "web3-typescript-typings": "0.9.4"
+    "typescript": "^2.5.2"
   },
   "dependencies": {
     "asyncawait": "^1.0.6",
