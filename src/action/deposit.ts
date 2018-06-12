@@ -146,7 +146,7 @@ export async function processDeposits(xrp, connection, coin, monitoringRepositor
     const serverInfo = await xrp.getServerInfo();
     const ledgers = serverInfo.completeLedgers.split('-');
     //const minLedgerVersion = Number(ledgers[0]);
-    const minLedgerVersion = Number(coin.lastblock);
+    const minLedgerVersion = Number(coin.lastblock?coin.lastblock:ledgers[0]);
     const maxLedgerVersion = Number(ledgers[1]);
     
     const transactions = await xrp.getTransactions(config.fromAddress, {
