@@ -3,7 +3,7 @@ import {Entity, PrimaryGeneratedColumn, Column, ManyToMany, JoinTable} from "typ
 @Entity()
 export class Markets {
 
-	@PrimaryGeneratedColumn('int')
+	@PrimaryGeneratedColumn()
     market_id: number;
   @Column()
     coin: number;
