@@ -104,7 +104,7 @@ export async function processDeposits(xrp, connection, coin, monitoringRepositor
                         txn.address = xrpTx.specification.destination.tag;
                         txn.amount = +Number(xrpTx.outcome.deliveredAmount.value).toFixed(8);
 
-                        txn.pending = 1;
+                        txn.pending = 0;
                         txn.confirms = 0;
                         txn.time = new Date().getTime().toString().substr(0, 10);
                         txn.fee = +Number(xrpTx.outcome.fee).toFixed(8);
