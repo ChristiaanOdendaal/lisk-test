@@ -18,6 +18,7 @@ export async function processDeposits(xrp, connection, coin, monitoringRepositor
 
     if (coin.cron_deposit < 0) {
         logLine('Coin withdraw disabled:', coin.name);
+        cleanup();
         return;
     }
 
