@@ -206,7 +206,7 @@ export async function processWithdrawals(xrp, connection, coin) {
             "Account": config.fromAddress,
             "Fee": txfee + "",
             "Destination": transaction.address,
-            //"DestinationTag" : transaction.payment_id,
+            "DestinationTag" : transaction.payment_id,
             "Amount": txamount + "",
             "Sequence": accInfo.sequence
         }
