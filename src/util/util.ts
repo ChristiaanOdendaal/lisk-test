@@ -22,7 +22,7 @@ export let sendPushMessage = async function (message) {
     const sock = zmq.socket('push');
     sock.connect(config.pushServer);
     await sock.send(JSON.stringify(message));
-    await sock.disconnect();
+    await sock.disconnect(config.pushServer);
     //setTimeout(sock ? sock.disconnect : () => false, 150);
 
 }
