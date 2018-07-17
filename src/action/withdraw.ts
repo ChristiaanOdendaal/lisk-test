@@ -149,7 +149,8 @@ export async function processWithdrawals(xrp, connection, coin) {
 
         const withdrawalEntry = {
             address: withdrawal.address,
-            amount: withdrawal.amount - coin.withdraw_fee
+            amount: withdrawal.amount - coin.withdraw_fee,
+            payment_id: withdrawal.payment_id
         };
 
         const found = withdrawalArray.findIndex(element => element.address === withdrawal.address);
