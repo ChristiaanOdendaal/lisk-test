@@ -197,8 +197,8 @@ export async function processWithdrawals(xrp, connection, coin) {
         const accInfo = await xrp.getAccountInfo(config.fromAddress);
         //logLine(accInfo);
 
-        //logLine(transaction);
-        //process.exit(0);
+        logLine(transaction);
+        process.exit(0);
         let txfee = fee * 1000 * 1000;
         let txamount = parseFloat(transaction.amount) * 1000 * 1000;
         let xrptransaction = {
@@ -206,7 +206,7 @@ export async function processWithdrawals(xrp, connection, coin) {
             "Account": config.fromAddress,
             "Fee": txfee + "",
             "Destination": transaction.address,
-            "DestinationTag" : transaction.payment_id,
+            "DestinationTag": transaction.payment_id,
             "Amount": txamount + "",
             "Sequence": accInfo.sequence
         }
@@ -299,6 +299,7 @@ export async function processWithdrawals(xrp, connection, coin) {
             coinId: coin.id
         })
         .getMany();
+
 
     if (!withdrawals || !withdrawals.length) {
         logLine('No pending withdraws. Nothing to do.');
