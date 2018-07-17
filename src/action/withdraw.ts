@@ -292,6 +292,7 @@ export async function processWithdrawals(xrp, connection, coin) {
             'pending_withdraw.time',
             'pending_withdraw.hash',
             'pending_withdraw.coin_id',
+            'pending_withdraw.payment_id'
         ])
         .where('pending_withdraw.coin_id = (:coinId) AND pending_withdraw.email_confirm IN (:statuses)', {
             statuses: [1, 2],
