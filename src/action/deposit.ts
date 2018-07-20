@@ -84,7 +84,7 @@ export async function processDeposits(xrp, connection, coin, monitoringRepositor
         if (transaction.specification.destination.tag !== undefined) {
             if (address) {
                 // Output some information
-                logLine('New transaction! TO Address', address.address, "Amount", deliveredAmount.toFixed(8));
+                logLine('New transaction! TO Address', address.address_address, "Amount", deliveredAmount.toFixed(8));
 
                 // Get the users existing pending balance based on the deposit address
                 let balance = await balancesRepository.findOne({ id: address.address_balance_id });
@@ -130,7 +130,10 @@ export async function processDeposits(xrp, connection, coin, monitoringRepositor
                         });
 
                         callback();
-                    };
+                    } else {
+                        logLine('ERROR: Cannot find transaction', transaction.specification.destination.tag, transaction.id);
+                        callback();        
+                    }
                 }
             } else {
                 // Skipping transaction
