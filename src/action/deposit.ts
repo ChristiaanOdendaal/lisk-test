@@ -75,7 +75,6 @@ export async function processDeposits(xrp, connection, coin, monitoringRepositor
 
         if (await isDuplicateTX(transaction.id, transaction.specification.destination.tag)) {
             callback();
-            return;
         }
 
         let address = await addressRepository.findOne({ address_address: transaction.specification.destination.tag }); // Use user address table...
