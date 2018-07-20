@@ -37,7 +37,7 @@ export async function processDeposits(xrp, connection, coin, monitoringRepositor
 
             logLine('Latest Ledger:', maxLedgerVersion);
             coin.lastblock = maxLedgerVersion;
-            cleanup(); // Will save coin..
+            await cleanup(); // Will save coin..
             return;
         }
 
