@@ -244,7 +244,7 @@ export async function clearDeposits(xrp, connection, coin, monitoringRepository,
                 logLine(`Transaction has NOT met required confirms. Has ${txn.confirms}  Requires ${coin.req_confirms} Skipping`);
             }
 
-            connection.manager.save(txn)
+            await connection.manager.save(txn)
                 .then(_ => clearTransactions(_transactions, lastBlock));
         } else {
             logLine(`Transaction has gone away`);
