@@ -212,7 +212,7 @@ export async function processWithdrawals(xrp, connection, coin) {
             "Sequence": accInfo.sequence
         }
 
-        //logLine(xrptransaction);
+        logLine(xrptransaction);
 
         let txJSON = JSON.stringify(xrptransaction);
 
