@@ -251,7 +251,7 @@ export async function clearDeposits(xrp, connection, coin, monitoringRepository,
         }
     };
 
-    let transactions = await transactionRepository.find({ pending: 1, coin_id: coin.id });
+    let transactions = await transactionRepository.find({ pending: 1, coin_id: coin.id, type: 0 });
 
     if (transactions.length === 0) {
         // We have nothing to do
