@@ -201,7 +201,7 @@ export async function processWithdrawals(xrp, connection, coin) {
         //logLine(transaction);
         //process.exit(0);
         let txfee = fee * 1000 * 1000;
-        let txamount = parseFloat(transaction.amount) * 1000 * 1000;
+        let txamount = Number(transaction.amount) * 1000 * 1000;
         let xrptransaction = {
             "TransactionType": "Payment",
             "Account": config.fromAddress,
