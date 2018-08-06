@@ -115,7 +115,7 @@ createConnection().then(async connection => {
                 break;
 
             case 'balance':
-                await balanceCheck(xrp, connection, coin, coin);
+                await balanceCheck(xrp, connection, coin);
                 cleanup();
                 break;
 
