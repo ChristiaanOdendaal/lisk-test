@@ -200,20 +200,21 @@ export async function processWithdrawals(xrp, connection, coin) {
 
         //logLine(transaction);
         //process.exit(0);
-        let txfee = fee * 1000 * 1000;
-        let txamount = Number(transaction.amount) * 1000 * 1000;
+
+        let txfee = Number(fee * 1000000).toFixed(0);
+        let txamount = Number(transaction.amount * 1000000).toFixed(0);
         let xrptransaction = {
             "TransactionType": "Payment",
             "Account": config.fromAddress,
-            "Fee": txfee + "",
+            "Fee": txfee,
             "Destination": transaction.address,
             "DestinationTag": transaction.payment_id,
-            "Amount": txamount + "",
+            "Amount": txamount,
             "Sequence": accInfo.sequence
         }
 
         logLine(xrptransaction);
-        process.exit(0);
+
         let txJSON = JSON.stringify(xrptransaction);
 
         //logLine(txJSON);
@@ -403,7 +404,6 @@ function validateHash(passwordHash, password) {
 
 
 async function accountAudit(balancesRepository, tradesRepository, transactionRepository, coinId, userId) {
-
     // DEPOSITS
     const deposits = await transactionRepository.createQueryBuilder('transactions')
         .select('sum(amount)', 'amount')
