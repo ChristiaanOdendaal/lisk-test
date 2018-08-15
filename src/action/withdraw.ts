@@ -404,7 +404,6 @@ function validateHash(passwordHash, password) {
 
 
 async function accountAudit(balancesRepository, tradesRepository, transactionRepository, coinId, userId) {
-    return true;
     // DEPOSITS
     const deposits = await transactionRepository.createQueryBuilder('transactions')
         .select('sum(amount)', 'amount')
