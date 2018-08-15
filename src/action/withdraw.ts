@@ -201,18 +201,12 @@ export async function processWithdrawals(xrp, connection, coin) {
         //logLine(transaction);
         //process.exit(0);
 
-        console.log(Number(transaction.amount));
-        console.log(Number(Number(transaction.amount) * 1000 * 1000).toFixed(2));
-        console.log(Number(transaction.amount) * 1000);
-        console.log(Number(transaction.amount) * 1000 * 1000);
-        console.log(Number(transaction.amount * 1000000).toFixed(0));
-
-        let txfee = fee * 1000 * 1000;
-        let txamount = Number(transaction.amount) * 1000 * 1000;
+        let txfee = Number(fee * 1000000).toFixed(0);
+        let txamount = Number(transaction.amount * 1000000).toFixed(0);
         let xrptransaction = {
             "TransactionType": "Payment",
             "Account": config.fromAddress,
-            "Fee": txfee + "",
+            "Fee": txfee,
             "Destination": transaction.address,
             "DestinationTag": transaction.payment_id,
             "Amount": txamount,
