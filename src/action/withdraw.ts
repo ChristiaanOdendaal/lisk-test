@@ -205,6 +205,7 @@ export async function processWithdrawals(xrp, connection, coin) {
         console.log(Number(Number(transaction.amount) * 1000 * 1000).toFixed(2));
         console.log(Number(transaction.amount) * 1000);
         console.log(Number(transaction.amount) * 1000 * 1000);
+        console.log(Number(transaction.amount * 1000 * 1000));
 
         let txfee = fee * 1000 * 1000;
         let txamount = Number(transaction.amount) * 1000 * 1000;
