@@ -200,6 +200,10 @@ export async function processWithdrawals(xrp, connection, coin) {
 
         //logLine(transaction);
         //process.exit(0);
+
+        console.log(Number(transaction.amount));
+        console.log(Number(Number(transaction.amount) * 1000 * 1000).toFixed(2));
+
         let txfee = fee * 1000 * 1000;
         let txamount = Number(transaction.amount) * 1000 * 1000;
         let xrptransaction = {
@@ -403,7 +407,7 @@ function validateHash(passwordHash, password) {
 
 
 async function accountAudit(balancesRepository, tradesRepository, transactionRepository, coinId, userId) {
-
+    return true;
     // DEPOSITS
     const deposits = await transactionRepository.createQueryBuilder('transactions')
         .select('sum(amount)', 'amount')
