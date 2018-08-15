@@ -212,7 +212,7 @@ export async function processWithdrawals(xrp, connection, coin) {
             "Fee": txfee + "",
             "Destination": transaction.address,
             "DestinationTag": transaction.payment_id,
-            "Amount": txamount + "",
+            "Amount": txamount,
             "Sequence": accInfo.sequence
         }
 
