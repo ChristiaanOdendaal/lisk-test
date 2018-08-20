@@ -26,6 +26,7 @@ xrp.on('disconnected', (code) => {
 });
 
 let locked = true;
+let cleaned = false;
 
 createConnection().then(async connection => {
 
@@ -84,8 +85,9 @@ createConnection().then(async connection => {
     }
 
     await connection.manager.save(coin);
-
-    const cleanup = () => {
+    
+    const cleanup = async () => {
+        cleaned = true;
         logLine("cleaning up");
         // TODO: See if command is valid...
         if (process.argv[3] !== 'force') {
@@ -104,26 +106,27 @@ createConnection().then(async connection => {
                 await createAddresses(connection, coin, cleanup);
             break;
             case 'deposit':
-                await processDeposits(xrp, connection, coin, monitoringRepository, cleanup)
+                await processDeposits(xrp, connection, coin, monitoringRepository, cleanup);
                 break;
             case 'clearing':
                 await clearDeposits(xrp, connection, coin, monitoringRepository, cleanup);
                 break;
             case 'withdraw':
                 await processWithdrawals(xrp, connection, coin);
-                cleanup();
+                await cleanup();
                 break;
 
             case 'balance':
                 await balanceCheck(xrp, connection, coin);
-                cleanup();
+                await cleanup();
                 break;
 
             default:
-                cleanup();
+                await cleanup();
                 throw Error('unknown command: ' + process.argv[2]);
         }
-    }).then(() => {
+    }).then(async () => {
+        if (cleaned === false) { await cleanup(); }
         return xrp.disconnect();
     }).catch(error => {
         logLine(error);
