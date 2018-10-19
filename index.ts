@@ -25,7 +25,7 @@ async function main()
     console.log();
     
     await executeLiskCommander('get account 7499353702925881868L');
-    //await executeLiskCommander('lisk create account');
+    //await executeLiskCommander('create account');
 
     /**console.log('Will transfer '+lskAmount+' LSK');
     console.log('Will transfer '+beddowAmount+' Beddows');
@@ -57,7 +57,7 @@ async function main()
 }
 
 //Executes a command line operation using Lisk Commander
-//Be sure to delete the maximum node versions from /usr/local/lib/node_modules/lisk-commander/package.json
+//Be sure to remove the maximum node versions from /usr/local/lib/node_modules/lisk-commander/package.json
 //Also be sure to set "network" to "test" in /home/user/.lisk-commander/config.json
 async function executeLiskCommander(command)
 {
