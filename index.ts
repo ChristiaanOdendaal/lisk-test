@@ -1,4 +1,7 @@
 const lisk = require('lisk-elements').default;
+//const commander = require('lisk-commander/dist');
+const cmd = require('node-cmd');
+const { exec } = require('child_process');
 
 const beddowAmount = lisk.transaction.utils.convertLSKToBeddows('1');
 const lskAmount = lisk.transaction.utils.convertBeddowsToLSK('1');
@@ -20,7 +23,11 @@ async function main()
     apiclient =  lisk.APIClient.createTestnetAPIClient();
     console.log("Client created")
     console.log();
-    console.log('Will transfer '+lskAmount+' LSK');
+    
+    await executeLiskCommander('get account 7499353702925881868L');
+    //await executeLiskCommander('lisk create account');
+
+    /**console.log('Will transfer '+lskAmount+' LSK');
     console.log('Will transfer '+beddowAmount+' Beddows');
     console.log('==========================');
 
@@ -44,10 +51,53 @@ async function main()
     await showAllTransactions(block);
 
     //EXPERIMENTAL! Be sure to use a loop here instead, recursion uses memory
-    //await logNextBlocks(block);
+    //await logNextBlocks(block);*/
 
     console.log("End program");
 }
+
+//Executes a command line operation using Lisk Commander
+//Be sure to delete the maximum node versions from /usr/local/lib/node_modules/lisk-commander/package.json
+//Also be sure to set "network" to "test" in /home/user/.lisk-commander/config.json
+async function executeLiskCommander(command)
+{
+    console.log('==========================');
+    console.log('Executing command \''+command+'\' on Lisk Commander..');
+    
+    let JSONResultString;
+
+    //Start a promise so that the child process finishes before continuing
+    await doCommandLinePromise('lisk '+command).then(result => JSONResultString=result);
+
+    console.log('Received string '+JSONResultString);
+    console.log('Converting to JSON object..');
+    let resultJSON = JSON.parse(JSONResultString);
+    console.log('Stringified object: '+JSON.stringify(resultJSON));
+    
+    if (resultJSON.error == undefined)
+    {
+    console.log('Address (where applicable): '+resultJSON.address);
+    console.log('Passphrase (where applicable): '+resultJSON.passphrase);
+    console.log('Private key (where applicable): '+resultJSON.privatekey);
+    console.log('Public key (where applicable): '+resultJSON.publicKey);
+    console.log('Lisk address (where applicable): '+resultJSON.address);
+    }
+    else
+    {
+        console.log('ERROR: '+resultJSON.error);
+    }
+}
+
+async function doCommandLinePromise(command){
+    return new Promise((resolve, reject) => {
+        exec(command, (err, data, stderr)=> //exec is a child-process library, see the required imports above
+        {
+            resolve(data); //send back the data or output produced
+            //If needed, err and stderr can also be sent back using an array
+        });
+    });
+}
+
 
 async function showAllTransactions(block)
 {

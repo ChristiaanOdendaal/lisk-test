@@ -13,6 +13,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "lisk-elements": "^1.0.0"
+    "lisk-commander": "^1.0.0",
+    "lisk-elements": "^1.0.0",
   }
 }
